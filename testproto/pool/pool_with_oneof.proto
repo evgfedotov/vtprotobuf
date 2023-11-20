@@ -3,7 +3,6 @@ option go_package = "testproto/pool";
 
 import "github.com/planetscale/vtprotobuf/vtproto/ext.proto";
 
-
 message OneofTest {
   option (vtproto.mempool) = true;
 

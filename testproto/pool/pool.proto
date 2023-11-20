@@ -2,6 +2,18 @@ syntax = "proto3";
 option go_package = "testproto/pool";
 
 import "github.com/planetscale/vtprotobuf/vtproto/ext.proto";
+import "google/protobuf/timestamp.proto";
+
+
+message Struct {
+  option (vtproto.mempool) = true;
+  map<string, Value> fields = 1;
+}
+
+message Value {
+  option (vtproto.mempool) = true;
+  google.protobuf.Timestamp date = 15;
+}
 
 message MemoryPoolExtension {
   option (vtproto.mempool) = true;

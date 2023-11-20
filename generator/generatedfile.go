@@ -36,11 +36,11 @@ func (p *GeneratedFile) Ident(path, ident string) string {
 
 func (b *GeneratedFile) ShouldPool(message *protogen.Message) bool {
 	// Do not generate pool if message is nil or message excluded by external rules
-	if message == nil || b.Config.PoolableExclude[message.GoIdent] {
+	if message == nil || b.Config.PoolableExclude.Contains(message.GoIdent) {
 		return false
 	}
 
-	if b.Config.PoolAll || b.Config.Poolable[message.GoIdent] {
+	if b.Config.Poolable.Contains(message.GoIdent) {
 		return true
 	}
 

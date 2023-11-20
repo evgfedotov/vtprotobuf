@@ -42,7 +42,12 @@ func (o ObjectSet) Set(s string) error {
 }
 
 type Config struct {
-	Poolable       ObjectSet
+	// Poolable rules determines if pool feature generate for particular message
+	Poolable ObjectSet
+	// PoolableExclude rules determines if pool feature disabled for particular message
+	PoolableExclude ObjectSet
+	// PoolAll enables pool feature for every message
+	PoolAll        bool
 	Wrap           bool
 	WellKnownTypes bool
 	AllowEmpty     bool

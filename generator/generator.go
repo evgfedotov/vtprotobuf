@@ -74,7 +74,6 @@ func Match(pattern, name string) (matched bool) {
 	if pattern == "*" {
 		return true
 	}
-	// Does only wildcard '*' match.
 	return deepMatchRune([]rune(name), []rune(pattern))
 
 }

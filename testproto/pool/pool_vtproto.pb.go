@@ -6,10 +6,8 @@ package pool
 
 import (
 	fmt "fmt"
-	timestamppb1 "github.com/planetscale/vtprotobuf/types/known/timestamppb"
 	proto "google.golang.org/protobuf/proto"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	io "io"
 	bits "math/bits"
 	sync "sync"
@@ -23,18 +21,11 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-func (m *Struct) CloneVT() *Struct {
+func (m *OptionalMessage) CloneVT() *OptionalMessage {
 	if m == nil {
-		return (*Struct)(nil)
+		return (*OptionalMessage)(nil)
 	}
-	r := StructFromVTPool()
-	if rhs := m.Fields; rhs != nil {
-		tmpContainer := make(map[string]*Value, len(rhs))
-		for k, v := range rhs {
-			tmpContainer[k] = v.CloneVT()
-		}
-		r.Fields = tmpContainer
-	}
+	r := OptionalMessageFromVTPool()
 	if len(m.unknownFields) > 0 {
 		r.unknownFields = make([]byte, len(m.unknownFields))
 		copy(r.unknownFields, m.unknownFields)
@@ -42,24 +33,7 @@ func (m *Struct) CloneVT() *Struct {
 	return r
 }
 
-func (m *Struct) CloneMessageVT() proto.Message {
-	return m.CloneVT()
-}
-
-func (m *Value) CloneVT() *Value {
-	if m == nil {
-		return (*Value)(nil)
-	}
-	r := ValueFromVTPool()
-	r.Date = (*timestamppb.Timestamp)((*timestamppb1.Timestamp)(m.Date).CloneVT())
-	if len(m.unknownFields) > 0 {
-		r.unknownFields = make([]byte, len(m.unknownFields))
-		copy(r.unknownFields, m.unknownFields)
-	}
-	return r
-}
-
-func (m *Value) CloneMessageVT() proto.Message {
+func (m *OptionalMessage) CloneMessageVT() proto.Message {
 	return m.CloneVT()
 }
 
@@ -70,6 +44,7 @@ func (m *MemoryPoolExtension) CloneVT() *MemoryPoolExtension {
 	r := MemoryPoolExtensionFromVTPool()
 	r.Foo1 = m.Foo1
 	r.Foo2 = m.Foo2
+	r.Foo3 = m.Foo3.CloneVT()
 	if len(m.unknownFields) > 0 {
 		r.unknownFields = make([]byte, len(m.unknownFields))
 		copy(r.unknownFields, m.unknownFields)
@@ -81,56 +56,17 @@ func (m *MemoryPoolExtension) CloneMessageVT() proto.Message {
 	return m.CloneVT()
 }
 
-func (this *Struct) EqualVT(that *Struct) bool {
+func (this *OptionalMessage) EqualVT(that *OptionalMessage) bool {
 	if this == that {
 		return true
 	} else if this == nil || that == nil {
 		return false
 	}
-	if len(this.Fields) != len(that.Fields) {
-		return false
-	}
-	for i, vx := range this.Fields {
-		vy, ok := that.Fields[i]
-		if !ok {
-			return false
-		}
-		if p, q := vx, vy; p != q {
-			if p == nil {
-				p = &Value{}
-			}
-			if q == nil {
-				q = &Value{}
-			}
-			if !p.EqualVT(q) {
-				return false
-			}
-		}
-	}
 	return string(this.unknownFields) == string(that.unknownFields)
 }
 
-func (this *Struct) EqualMessageVT(thatMsg proto.Message) bool {
-	that, ok := thatMsg.(*Struct)
-	if !ok {
-		return false
-	}
-	return this.EqualVT(that)
-}
-func (this *Value) EqualVT(that *Value) bool {
-	if this == that {
-		return true
-	} else if this == nil || that == nil {
-		return false
-	}
-	if !(*timestamppb1.Timestamp)(this.Date).EqualVT((*timestamppb1.Timestamp)(that.Date)) {
-		return false
-	}
-	return string(this.unknownFields) == string(that.unknownFields)
-}
-
-func (this *Value) EqualMessageVT(thatMsg proto.Message) bool {
-	that, ok := thatMsg.(*Value)
+func (this *OptionalMessage) EqualMessageVT(thatMsg proto.Message) bool {
+	that, ok := thatMsg.(*OptionalMessage)
 	if !ok {
 		return false
 	}
@@ -148,6 +84,9 @@ func (this *MemoryPoolExtension) EqualVT(that *MemoryPoolExtension) bool {
 	if this.Foo2 != that.Foo2 {
 		return false
 	}
+	if !this.Foo3.EqualVT(that.Foo3) {
+		return false
+	}
 	return string(this.unknownFields) == string(that.unknownFields)
 }
 
@@ -158,7 +97,7 @@ func (this *MemoryPoolExtension) EqualMessageVT(thatMsg proto.Message) bool {
 	}
 	return this.EqualVT(that)
 }
-func (m *Struct) MarshalVT() (dAtA []byte, err error) {
+func (m *OptionalMessage) MarshalVT() (dAtA []byte, err error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -171,12 +110,12 @@ func (m *Struct) MarshalVT() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *Struct) MarshalToVT(dAtA []byte) (int, error) {
+func (m *OptionalMessage) MarshalToVT(dAtA []byte) (int, error) {
 	size := m.SizeVT()
 	return m.MarshalToSizedBufferVT(dAtA[:size])
 }
 
-func (m *Struct) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
+func (m *OptionalMessage) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	if m == nil {
 		return 0, nil
 	}
@@ -187,71 +126,6 @@ func (m *Struct) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	if m.unknownFields != nil {
 		i -= len(m.unknownFields)
 		copy(dAtA[i:], m.unknownFields)
-	}
-	if len(m.Fields) > 0 {
-		for k := range m.Fields {
-			v := m.Fields[k]
-			baseI := i
-			size, err := v.MarshalToSizedBufferVT(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarint(dAtA, i, uint64(size))
-			i--
-			dAtA[i] = 0x12
-			i -= len(k)
-			copy(dAtA[i:], k)
-			i = encodeVarint(dAtA, i, uint64(len(k)))
-			i--
-			dAtA[i] = 0xa
-			i = encodeVarint(dAtA, i, uint64(baseI-i))
-			i--
-			dAtA[i] = 0xa
-		}
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *Value) MarshalVT() (dAtA []byte, err error) {
-	if m == nil {
-		return nil, nil
-	}
-	size := m.SizeVT()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBufferVT(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *Value) MarshalToVT(dAtA []byte) (int, error) {
-	size := m.SizeVT()
-	return m.MarshalToSizedBufferVT(dAtA[:size])
-}
-
-func (m *Value) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
-	if m == nil {
-		return 0, nil
-	}
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.unknownFields != nil {
-		i -= len(m.unknownFields)
-		copy(dAtA[i:], m.unknownFields)
-	}
-	if m.Date != nil {
-		size, err := (*timestamppb1.Timestamp)(m.Date).MarshalToSizedBufferVT(dAtA[:i])
-		if err != nil {
-			return 0, err
-		}
-		i -= size
-		i = encodeVarint(dAtA, i, uint64(size))
-		i--
-		dAtA[i] = 0x7a
 	}
 	return len(dAtA) - i, nil
 }
@@ -286,6 +160,16 @@ func (m *MemoryPoolExtension) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 		i -= len(m.unknownFields)
 		copy(dAtA[i:], m.unknownFields)
 	}
+	if m.Foo3 != nil {
+		size, err := m.Foo3.MarshalToSizedBufferVT(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarint(dAtA, i, uint64(size))
+		i--
+		dAtA[i] = 0x1a
+	}
 	if m.Foo2 != 0 {
 		i = encodeVarint(dAtA, i, uint64(m.Foo2))
 		i--
@@ -312,7 +196,7 @@ func encodeVarint(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *Struct) MarshalVTStrict() (dAtA []byte, err error) {
+func (m *OptionalMessage) MarshalVTStrict() (dAtA []byte, err error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -325,12 +209,12 @@ func (m *Struct) MarshalVTStrict() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *Struct) MarshalToVTStrict(dAtA []byte) (int, error) {
+func (m *OptionalMessage) MarshalToVTStrict(dAtA []byte) (int, error) {
 	size := m.SizeVT()
 	return m.MarshalToSizedBufferVTStrict(dAtA[:size])
 }
 
-func (m *Struct) MarshalToSizedBufferVTStrict(dAtA []byte) (int, error) {
+func (m *OptionalMessage) MarshalToSizedBufferVTStrict(dAtA []byte) (int, error) {
 	if m == nil {
 		return 0, nil
 	}
@@ -341,71 +225,6 @@ func (m *Struct) MarshalToSizedBufferVTStrict(dAtA []byte) (int, error) {
 	if m.unknownFields != nil {
 		i -= len(m.unknownFields)
 		copy(dAtA[i:], m.unknownFields)
-	}
-	if len(m.Fields) > 0 {
-		for k := range m.Fields {
-			v := m.Fields[k]
-			baseI := i
-			size, err := v.MarshalToSizedBufferVTStrict(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarint(dAtA, i, uint64(size))
-			i--
-			dAtA[i] = 0x12
-			i -= len(k)
-			copy(dAtA[i:], k)
-			i = encodeVarint(dAtA, i, uint64(len(k)))
-			i--
-			dAtA[i] = 0xa
-			i = encodeVarint(dAtA, i, uint64(baseI-i))
-			i--
-			dAtA[i] = 0xa
-		}
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *Value) MarshalVTStrict() (dAtA []byte, err error) {
-	if m == nil {
-		return nil, nil
-	}
-	size := m.SizeVT()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBufferVTStrict(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *Value) MarshalToVTStrict(dAtA []byte) (int, error) {
-	size := m.SizeVT()
-	return m.MarshalToSizedBufferVTStrict(dAtA[:size])
-}
-
-func (m *Value) MarshalToSizedBufferVTStrict(dAtA []byte) (int, error) {
-	if m == nil {
-		return 0, nil
-	}
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.unknownFields != nil {
-		i -= len(m.unknownFields)
-		copy(dAtA[i:], m.unknownFields)
-	}
-	if m.Date != nil {
-		size, err := (*timestamppb1.Timestamp)(m.Date).MarshalToSizedBufferVTStrict(dAtA[:i])
-		if err != nil {
-			return 0, err
-		}
-		i -= size
-		i = encodeVarint(dAtA, i, uint64(size))
-		i--
-		dAtA[i] = 0x7a
 	}
 	return len(dAtA) - i, nil
 }
@@ -440,6 +259,16 @@ func (m *MemoryPoolExtension) MarshalToSizedBufferVTStrict(dAtA []byte) (int, er
 		i -= len(m.unknownFields)
 		copy(dAtA[i:], m.unknownFields)
 	}
+	if m.Foo3 != nil {
+		size, err := m.Foo3.MarshalToSizedBufferVTStrict(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarint(dAtA, i, uint64(size))
+		i--
+		dAtA[i] = 0x1a
+	}
 	if m.Foo2 != 0 {
 		i = encodeVarint(dAtA, i, uint64(m.Foo2))
 		i--
@@ -455,46 +284,25 @@ func (m *MemoryPoolExtension) MarshalToSizedBufferVTStrict(dAtA []byte) (int, er
 	return len(dAtA) - i, nil
 }
 
-var vtprotoPool_Struct = sync.Pool{
+var vtprotoPool_OptionalMessage = sync.Pool{
 	New: func() interface{} {
-		return &Struct{}
+		return &OptionalMessage{}
 	},
 }
 
-func (m *Struct) ResetVT() {
+func (m *OptionalMessage) ResetVT() {
 	if m != nil {
 		m.Reset()
 	}
 }
-func (m *Struct) ReturnToVTPool() {
+func (m *OptionalMessage) ReturnToVTPool() {
 	if m != nil {
 		m.ResetVT()
-		vtprotoPool_Struct.Put(m)
+		vtprotoPool_OptionalMessage.Put(m)
 	}
 }
-func StructFromVTPool() *Struct {
-	return vtprotoPool_Struct.Get().(*Struct)
-}
-
-var vtprotoPool_Value = sync.Pool{
-	New: func() interface{} {
-		return &Value{}
-	},
-}
-
-func (m *Value) ResetVT() {
-	if m != nil {
-		m.Reset()
-	}
-}
-func (m *Value) ReturnToVTPool() {
-	if m != nil {
-		m.ResetVT()
-		vtprotoPool_Value.Put(m)
-	}
-}
-func ValueFromVTPool() *Value {
-	return vtprotoPool_Value.Get().(*Value)
+func OptionalMessageFromVTPool() *OptionalMessage {
+	return vtprotoPool_OptionalMessage.Get().(*OptionalMessage)
 }
 
 var vtprotoPool_MemoryPoolExtension = sync.Pool{
@@ -505,6 +313,7 @@ var vtprotoPool_MemoryPoolExtension = sync.Pool{
 
 func (m *MemoryPoolExtension) ResetVT() {
 	if m != nil {
+		m.Foo3.ReturnToVTPool()
 		m.Reset()
 	}
 }
@@ -517,39 +326,12 @@ func (m *MemoryPoolExtension) ReturnToVTPool() {
 func MemoryPoolExtensionFromVTPool() *MemoryPoolExtension {
 	return vtprotoPool_MemoryPoolExtension.Get().(*MemoryPoolExtension)
 }
-func (m *Struct) SizeVT() (n int) {
+func (m *OptionalMessage) SizeVT() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	if len(m.Fields) > 0 {
-		for k, v := range m.Fields {
-			_ = k
-			_ = v
-			l = 0
-			if v != nil {
-				l = v.SizeVT()
-			}
-			l += 1 + sov(uint64(l))
-			mapEntrySize := 1 + len(k) + sov(uint64(len(k))) + l
-			n += mapEntrySize + 1 + sov(uint64(mapEntrySize))
-		}
-	}
-	n += len(m.unknownFields)
-	return n
-}
-
-func (m *Value) SizeVT() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.Date != nil {
-		l = (*timestamppb1.Timestamp)(m.Date).SizeVT()
-		n += 1 + l + sov(uint64(l))
-	}
 	n += len(m.unknownFields)
 	return n
 }
@@ -567,6 +349,10 @@ func (m *MemoryPoolExtension) SizeVT() (n int) {
 	if m.Foo2 != 0 {
 		n += 1 + sov(uint64(m.Foo2))
 	}
+	if m.Foo3 != nil {
+		l = m.Foo3.SizeVT()
+		n += 1 + l + sov(uint64(l))
+	}
 	n += len(m.unknownFields)
 	return n
 }
@@ -577,7 +363,7 @@ func sov(x uint64) (n int) {
 func soz(x uint64) (n int) {
 	return sov(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (m *Struct) UnmarshalVT(dAtA []byte) error {
+func (m *OptionalMessage) UnmarshalVT(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -600,228 +386,12 @@ func (m *Struct) UnmarshalVT(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: Struct: wiretype end group for non-group")
+			return fmt.Errorf("proto: OptionalMessage: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: Struct: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: OptionalMessage: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Fields", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflow
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLength
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLength
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if m.Fields == nil {
-				m.Fields = make(map[string]*Value)
-			}
-			var mapkey string
-			var mapvalue *Value
-			for iNdEx < postIndex {
-				entryPreIndex := iNdEx
-				var wire uint64
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return ErrIntOverflow
-					}
-					if iNdEx >= l {
-						return io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					wire |= uint64(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				fieldNum := int32(wire >> 3)
-				if fieldNum == 1 {
-					var stringLenmapkey uint64
-					for shift := uint(0); ; shift += 7 {
-						if shift >= 64 {
-							return ErrIntOverflow
-						}
-						if iNdEx >= l {
-							return io.ErrUnexpectedEOF
-						}
-						b := dAtA[iNdEx]
-						iNdEx++
-						stringLenmapkey |= uint64(b&0x7F) << shift
-						if b < 0x80 {
-							break
-						}
-					}
-					intStringLenmapkey := int(stringLenmapkey)
-					if intStringLenmapkey < 0 {
-						return ErrInvalidLength
-					}
-					postStringIndexmapkey := iNdEx + intStringLenmapkey
-					if postStringIndexmapkey < 0 {
-						return ErrInvalidLength
-					}
-					if postStringIndexmapkey > l {
-						return io.ErrUnexpectedEOF
-					}
-					mapkey = string(dAtA[iNdEx:postStringIndexmapkey])
-					iNdEx = postStringIndexmapkey
-				} else if fieldNum == 2 {
-					var mapmsglen int
-					for shift := uint(0); ; shift += 7 {
-						if shift >= 64 {
-							return ErrIntOverflow
-						}
-						if iNdEx >= l {
-							return io.ErrUnexpectedEOF
-						}
-						b := dAtA[iNdEx]
-						iNdEx++
-						mapmsglen |= int(b&0x7F) << shift
-						if b < 0x80 {
-							break
-						}
-					}
-					if mapmsglen < 0 {
-						return ErrInvalidLength
-					}
-					postmsgIndex := iNdEx + mapmsglen
-					if postmsgIndex < 0 {
-						return ErrInvalidLength
-					}
-					if postmsgIndex > l {
-						return io.ErrUnexpectedEOF
-					}
-					mapvalue = &Value{}
-					if err := mapvalue.UnmarshalVT(dAtA[iNdEx:postmsgIndex]); err != nil {
-						return err
-					}
-					iNdEx = postmsgIndex
-				} else {
-					iNdEx = entryPreIndex
-					skippy, err := skip(dAtA[iNdEx:])
-					if err != nil {
-						return err
-					}
-					if (skippy < 0) || (iNdEx+skippy) < 0 {
-						return ErrInvalidLength
-					}
-					if (iNdEx + skippy) > postIndex {
-						return io.ErrUnexpectedEOF
-					}
-					iNdEx += skippy
-				}
-			}
-			m.Fields[mapkey] = mapvalue
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skip(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLength
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.unknownFields = append(m.unknownFields, dAtA[iNdEx:iNdEx+skippy]...)
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *Value) UnmarshalVT(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflow
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: Value: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: Value: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 15:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Date", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflow
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLength
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLength
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if m.Date == nil {
-				m.Date = &timestamppb.Timestamp{}
-			}
-			if err := (*timestamppb1.Timestamp)(m.Date).UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skip(dAtA[iNdEx:])
@@ -924,6 +494,42 @@ func (m *MemoryPoolExtension) UnmarshalVT(dAtA []byte) error {
 					break
 				}
 			}
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Foo3", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLength
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLength
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Foo3 == nil {
+				m.Foo3 = OptionalMessageFromVTPool()
+			}
+			if err := m.Foo3.UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skip(dAtA[iNdEx:])
@@ -1032,7 +638,7 @@ var (
 	ErrUnexpectedEndOfGroup = fmt.Errorf("proto: unexpected end of group")
 )
 
-func (m *Struct) UnmarshalVTUnsafe(dAtA []byte) error {
+func (m *OptionalMessage) UnmarshalVTUnsafe(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1055,228 +661,12 @@ func (m *Struct) UnmarshalVTUnsafe(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: Struct: wiretype end group for non-group")
+			return fmt.Errorf("proto: OptionalMessage: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: Struct: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: OptionalMessage: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Fields", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflow
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLength
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLength
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if m.Fields == nil {
-				m.Fields = make(map[string]*Value)
-			}
-			var mapkey string
-			var mapvalue *Value
-			for iNdEx < postIndex {
-				entryPreIndex := iNdEx
-				var wire uint64
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return ErrIntOverflow
-					}
-					if iNdEx >= l {
-						return io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					wire |= uint64(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				fieldNum := int32(wire >> 3)
-				if fieldNum == 1 {
-					var stringLenmapkey uint64
-					for shift := uint(0); ; shift += 7 {
-						if shift >= 64 {
-							return ErrIntOverflow
-						}
-						if iNdEx >= l {
-							return io.ErrUnexpectedEOF
-						}
-						b := dAtA[iNdEx]
-						iNdEx++
-						stringLenmapkey |= uint64(b&0x7F) << shift
-						if b < 0x80 {
-							break
-						}
-					}
-					intStringLenmapkey := int(stringLenmapkey)
-					if intStringLenmapkey < 0 {
-						return ErrInvalidLength
-					}
-					postStringIndexmapkey := iNdEx + intStringLenmapkey
-					if postStringIndexmapkey < 0 {
-						return ErrInvalidLength
-					}
-					if postStringIndexmapkey > l {
-						return io.ErrUnexpectedEOF
-					}
-					mapkey = unsafe.String(&dAtA[iNdEx], intStringLenmapkey)
-					iNdEx = postStringIndexmapkey
-				} else if fieldNum == 2 {
-					var mapmsglen int
-					for shift := uint(0); ; shift += 7 {
-						if shift >= 64 {
-							return ErrIntOverflow
-						}
-						if iNdEx >= l {
-							return io.ErrUnexpectedEOF
-						}
-						b := dAtA[iNdEx]
-						iNdEx++
-						mapmsglen |= int(b&0x7F) << shift
-						if b < 0x80 {
-							break
-						}
-					}
-					if mapmsglen < 0 {
-						return ErrInvalidLength
-					}
-					postmsgIndex := iNdEx + mapmsglen
-					if postmsgIndex < 0 {
-						return ErrInvalidLength
-					}
-					if postmsgIndex > l {
-						return io.ErrUnexpectedEOF
-					}
-					mapvalue = &Value{}
-					if err := mapvalue.UnmarshalVTUnsafe(dAtA[iNdEx:postmsgIndex]); err != nil {
-						return err
-					}
-					iNdEx = postmsgIndex
-				} else {
-					iNdEx = entryPreIndex
-					skippy, err := skip(dAtA[iNdEx:])
-					if err != nil {
-						return err
-					}
-					if (skippy < 0) || (iNdEx+skippy) < 0 {
-						return ErrInvalidLength
-					}
-					if (iNdEx + skippy) > postIndex {
-						return io.ErrUnexpectedEOF
-					}
-					iNdEx += skippy
-				}
-			}
-			m.Fields[mapkey] = mapvalue
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skip(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLength
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.unknownFields = append(m.unknownFields, dAtA[iNdEx:iNdEx+skippy]...)
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *Value) UnmarshalVTUnsafe(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflow
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: Value: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: Value: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 15:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Date", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflow
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLength
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLength
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if m.Date == nil {
-				m.Date = &timestamppb.Timestamp{}
-			}
-			if err := (*timestamppb1.Timestamp)(m.Date).UnmarshalVTUnsafe(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skip(dAtA[iNdEx:])
@@ -1379,6 +769,42 @@ func (m *MemoryPoolExtension) UnmarshalVTUnsafe(dAtA []byte) error {
 					break
 				}
 			}
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Foo3", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLength
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLength
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Foo3 == nil {
+				m.Foo3 = OptionalMessageFromVTPool()
+			}
+			if err := m.Foo3.UnmarshalVTUnsafe(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skip(dAtA[iNdEx:])
